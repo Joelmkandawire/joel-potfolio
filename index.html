@@ -3,37 +3,411 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Joel Mkandawire | Full-Stack Developer</title>
+    <title>Joel Mkandawire | Full-Stack Architect — Visual Portfolio</title>
     <!-- Google Fonts + Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <!-- Three.js for immersive 3D background -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050b14;
+            color: #eef4ff;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* canvas 3D background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Glassmorphic navbar with avatar image */
+        nav {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(16px);
+            background: rgba(10, 20, 35, 0.75);
+            margin: 20px 30px;
+            padding: 10px 32px;
+            border-radius: 70px;
+            border: 1px solid rgba(59, 201, 255, 0.35);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .nav-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #3bc9ff;
+            box-shadow: 0 0 12px rgba(59,201,255,0.6);
+            transition: transform 0.3s ease;
+            background: #0f212e;
+        }
+        .nav-avatar:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+            background: linear-gradient(120deg, #fff, #7bc9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #eef4ff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        nav ul li a:hover {
+            color: #3bc9ff;
+            text-shadow: 0 0 6px #3bc9ff;
+        }
+
+        /* sections */
+        .section {
+            padding: 100px 8%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .home {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home .container {
+            max-width: 1300px;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+        }
+        .home-text {
+            flex: 1.5;
+        }
+        .home-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .hero-portrait {
+            width: 320px;
+            height: 320px;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            object-fit: cover;
+            border: 4px solid #3bc9ff;
+            box-shadow: 0 25px 35px -12px rgba(0,0,0,0.5), 0 0 0 8px rgba(59,201,255,0.2);
+            transition: all 0.4s;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+        .hero-portrait:hover {
+            transform: scale(1.02);
+            border-radius: 50% 40% 50% 60%;
+        }
+
+        .home-text h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #7bc9ff, #2c7da0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        #typing {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #7bc9ff;
+            margin: 20px 0 10px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(95deg, #1e2f3e, #07121e);
+            padding: 12px 28px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            margin: 15px 15px 0 0;
+            border: 1px solid rgba(59, 201, 255, 0.6);
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-4px);
+            background: #0f3550;
+            box-shadow: 0 10px 20px -5px #3bc9ff60;
+        }
+        .tech-badges {
+            margin-top: 35px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+        .tech-badges span {
+            background: rgba(59, 201, 255, 0.12);
+            backdrop-filter: blur(5px);
+            padding: 7px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            border: 1px solid rgba(59, 201, 255, 0.3);
+        }
+
+        h2 {
+            font-size: 2.6rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            position: relative;
+        }
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 70px;
+            height: 4px;
+            background: linear-gradient(90deg, #3bc9ff, #1a5a7a);
+            border-radius: 4px;
+        }
+
+        /* skill bars */
+        .skill-item {
+            margin: 28px 0;
+        }
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .bar {
+            background: #1e2a3a;
+            border-radius: 30px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #3bc9ff, #2c7da0);
+            border-radius: 30px;
+            transition: width 1.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        /* projects with image placeholders (image embedded) */
+        .projects-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .card {
+            background: rgba(15, 28, 42, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            overflow: hidden;
+            transition: all 0.4s;
+            border: 1px solid rgba(59, 201, 255, 0.25);
+        }
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            transition: transform 0.5s;
+            background: linear-gradient(145deg, #102a3a, #05161f);
+        }
+        .card-content {
+            padding: 1.5rem;
+        }
+        .card i {
+            font-size: 2.2rem;
+            color: #3bc9ff;
+            margin-bottom: 0.8rem;
+        }
+        .card h3 {
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: #3bc9ff;
+            background: rgba(25, 45, 65, 0.85);
+        }
+        .card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        .social {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 30px 0;
+        }
+        .social a {
+            background: rgba(30, 45, 65, 0.7);
+            padding: 12px 24px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(4px);
+        }
+        .social a:hover {
+            background: #1e5775;
+            transform: scale(1.02);
+        }
+        form {
+            background: rgba(10, 20, 32, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 35px;
+            border-radius: 40px;
+            max-width: 700px;
+            border: 1px solid #3bc9ff40;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            background: #0a101f;
+            border: 1px solid #2c5c7c;
+            border-radius: 40px;
+            color: white;
+            font-size: 1rem;
+        }
+        input:focus, textarea:focus {
+            border-color: #3bc9ff;
+            outline: none;
+            box-shadow: 0 0 8px #3bc9ff;
+        }
+        button {
+            background: linear-gradient(95deg, #0e3c52, #071e2c);
+            padding: 12px 32px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #1f6a8a;
+            transform: scale(0.98);
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #0a1c28cc;
+            backdrop-filter: blur(20px);
+            padding: 12px 28px;
+            border-radius: 50px;
+            border-left: 5px solid #3bc9ff;
+            z-index: 200;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            font-weight: 500;
+        }
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid #1e3a5f;
+        }
+        @media (max-width: 880px) {
+            .home .container { flex-direction: column-reverse; text-align: center; }
+            .home-text h1 { font-size: 3rem; }
+            nav ul { gap: 0.8rem; }
+            nav ul li a span { display: none; }
+            nav ul li a i { font-size: 1.3rem; }
+        }
+    </style>
 </head>
 <body>
-
-<div id="toast" class="toast-msg">✨ Message sent (demo)</div>
+<canvas id="bg-canvas"></canvas>
+<div id="toast" class="toast-msg">✨ Action completed</div>
 
 <nav id="navbar">
-    <div class="logo">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231f6392'/%3E%3Ctext x='28' y='68' font-size='58' fill='white' font-weight='bold' font-family='Arial'%3EJK%3C/text%3E%3C/svg%3E" alt="JK">
-        <h3>Joel Mkandawire</h3>
+    <div class="nav-brand">
+        <!-- Embedded image: professional avatar (generated placeholder with style) -->
+        <img src="https://placehold.co/400x400/0f2c3c/3bc9ff?text=JM&font=montserrat" alt="Joel Mkandawire avatar" class="nav-avatar" id="navAvatar">
+        <span class="brand-text">Joel.dev</span>
     </div>
     <ul>
-        <li><a href="#home"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="#about"><i class="fas fa-user"></i> About</a></li>
-        <li><a href="#skills"><i class="fas fa-code"></i> Skills</a></li>
-        <li><a href="#projects"><i class="fas fa-laptop-code"></i> Projects</a></li>
-        <li><a href="#contact"><i class="fas fa-paper-plane"></i> Contact</a></li>
+        <li><a href="#home"><i class="fas fa-home"></i><span> Home</span></a></li>
+        <li><a href="#about"><i class="fas fa-user"></i><span> About</span></a></li>
+        <li><a href="#skills"><i class="fas fa-code"></i><span> Skills</span></a></li>
+        <li><a href="#projects"><i class="fas fa-laptop-code"></i><span> Projects</span></a></li>
+        <li><a href="#contact"><i class="fas fa-paper-plane"></i><span> Contact</span></a></li>
     </ul>
 </nav>
 
-<!-- HOME -->
+<!-- HOME with Image embedded prominently -->
 <section id="home" class="section home">
     <div class="container">
-        <div class="text">
-            <h1>Joel Mkandawire</h1>
+        <div class="home-text">
+        
             <div id="typing"></div>
-            <p>I build real-world ecosystems — POS, HR, School Management Systems & scalable web applications.</p>
+            <p style="font-size: 1.2rem;">I build real-world ecosystems — POS, HR, School Management Systems & scalable web architectures.</p>
             <div>
                 <a href="#projects" class="btn"><i class="fas fa-arrow-down"></i> View Work</a>
                 <a href="#" class="btn" id="downloadCVbtn"><i class="fas fa-download"></i> Download CV</a>
@@ -42,24 +416,31 @@
                 <span><i class="fab fa-laravel"></i> Laravel</span>
                 <span><i class="fas fa-database"></i> MySQL</span>
                 <span><i class="fab fa-js"></i> JavaScript</span>
+                <span><i class="fab fa-react"></i> React/Next</span>
+                <span><i class="fab fa-docker"></i> Docker</span>
             </div>
         </div>
-        <div class="image">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='180' fill='%23cae3f2'/%3E%3Ccircle cx='145' cy='160' r='14' fill='%23405a6b'/%3E%3Ccircle cx='255' cy='160' r='14' fill='%23405a6b'/%3E%3Cpath d='M150 250 Q200 290 260 250' stroke='%231f6392' stroke-width='8' fill='none' stroke-linecap='round'/%3E%3Crect x='170' y='110' width='60' height='25' rx='12' fill='%234f7b99'/%3E%3C/svg%3E" alt="Joel avatar">
+        <div class="home-image">
+            <!-- Embedded image with data:svg fallback but using high-quality styled avatar -->
+            <img src="image/JK.png" alt="Joel Mkandawire" style="width: 100%; border-radius: 50%; border: 3px solid #3bc9ff;" class="hero-portrait" id="heroImage">
         </div>
     </div>
 </section>
 
-<!-- ABOUT -->
+<!-- ABOUT (no extra image but embedded visual charm) -->
 <section id="about" class="section">
     <h2>About Me</h2>
-    <p>
-        <i class="fas fa-rocket" style="margin-right: 12px; color: #2c7da0;"></i> 
-        I'm a full-stack developer passionate about crafting robust, real-world management systems. From School Management that tracks student performance seamlessly, to POS systems for retail analytics, and HR platforms with payroll automation — I deliver scalable solutions.
-    </p>
-    <p>
-        <i class="fas fa-code-branch"></i> Tech Stack: PHP (Laravel), MySQL, Livewire, Tailwind, JavaScript, and modern web practices. Currently exploring microservices & AI integrations.
-    </p>
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: center; margin-top: 25px;">
+        <div style="flex:2">
+            <h3 style="color: #9acbff;">Joel Mkandawire — Senior Full-Stack Engineer</h3>
+            <p><i class="fas fa-rocket" style="margin-right: 12px; color: #3bc9ff;"></i> I'm a passionate developer who architects robust digital solutions for enterprises. From <strong>School Management Systems</strong> tracking thousands of students to <strong>POS platforms</strong> with real-time inventory, and <strong>HR systems</strong> that automate payroll — I craft scalable, secure ecosystems that empower businesses.</p>
+            <p style="margin-top: 18px;"><i class="fas fa-microchip"></i> Core stack: Laravel, Livewire, Tailwind, MySQL, Vue. Currently exploring AI integrations & microservices orchestration.</p>
+        </div>
+        <!-- second embedded image (signature visual) -->
+        <div style="flex:1; text-align: center;">
+            <img src="https://placehold.co/300x200/102433/3bc9ff?text=Code+Craft&font=montserrat" alt="coding illustration" style="width: 100%; border-radius: 32px; border: 1px solid #3bc9ff40;">
+        </div>
+    </div>
 </section>
 
 <!-- SKILLS -->
@@ -67,38 +448,70 @@
     <h2>Technical Skills</h2>
     <div class="skill-item">
         <div class="skill-header"><span><i class="fab fa-html5"></i> HTML5 & CSS3</span><span id="html-val">0%</span></div>
-        <div class="bar"><div class="bar-fill" data-width="92" id="html-fill"></div></div>
+        <div class="bar"><div class="bar-fill" data-width="94" id="html-fill"></div></div>
     </div>
     <div class="skill-item">
         <div class="skill-header"><span><i class="fab fa-css3-alt"></i> Tailwind / SCSS</span><span id="css-val">0%</span></div>
-        <div class="bar"><div class="bar-fill" data-width="88" id="css-fill"></div></div>
+        <div class="bar"><div class="bar-fill" data-width="90" id="css-fill"></div></div>
     </div>
     <div class="skill-item">
-        <div class="skill-header"><span><i class="fab fa-js"></i> JavaScript / ES6</span><span id="js-val">0%</span></div>
-        <div class="bar"><div class="bar-fill" data-width="78" id="js-fill"></div></div>
+        <div class="skill-header"><span><i class="fab fa-js"></i> JavaScript / ES6+</span><span id="js-val">0%</span></div>
+        <div class="bar"><div class="bar-fill" data-width="87" id="js-fill"></div></div>
     </div>
     <div class="skill-item">
         <div class="skill-header"><span><i class="fab fa-php"></i> PHP / Laravel</span><span id="php-val">0%</span></div>
-        <div class="bar"><div class="bar-fill" data-width="86" id="php-fill"></div></div>
+        <div class="bar"><div class="bar-fill" data-width="92" id="php-fill"></div></div>
     </div>
     <div class="skill-item">
         <div class="skill-header"><span><i class="fas fa-database"></i> MySQL / PostgreSQL</span><span id="mysql-val">0%</span></div>
-        <div class="bar"><div class="bar-fill" data-width="84" id="mysql-fill"></div></div>
+        <div class="bar"><div class="bar-fill" data-width="89" id="mysql-fill"></div></div>
     </div>
     <div class="skill-item">
         <div class="skill-header"><span><i class="fab fa-git-alt"></i> Git & CI/CD</span><span id="git-val">0%</span></div>
-        <div class="bar"><div class="bar-fill" data-width="75" id="git-fill"></div></div>
+        <div class="bar"><div class="bar-fill" data-width="83" id="git-fill"></div></div>
     </div>
 </section>
 
-<!-- PROJECTS -->
+<!-- PROJECTS with images embedded (each card contains preview image) -->
 <section id="projects" class="section">
     <h2>Featured Projects</h2>
     <div class="projects-container">
-        <div class="card"><i class="fas fa-school"></i><h3>School Management</h3><p>Full dashboard: students, results, exams, automatic report generation, parental access.</p></div>
-        <div class="card"><i class="fas fa-cash-register"></i><h3>POS System</h3><p>Inventory tracking, barcode scanning, invoice printing, real-time sales analytics.</p></div>
-        <div class="card"><i class="fas fa-users"></i><h3>HR System</h3><p>Employee records, leave management, payroll, performance reviews, advanced reporting.</p></div>
-        <div class="card"><i class="fas fa-chart-line"></i><h3>Stock Trading Platform</h3><p>Real-time price simulations, investor portfolio, transaction logs and watchlists.</p></div>
+        <div class="card">
+            <img src="https://placehold.co/600x400/103544/7bc9ff?text=School+Management+System&font=montserrat" alt="School Management Dashboard" class="card-img">
+            <div class="card-content">
+                <i class="fas fa-school"></i>
+                <h3>School Management Pro</h3>
+                <p>Complete ecosystem with exams, results, automatic report cards, parent portal, analytics dashboards.</p>
+                <div style="margin-top: 12px;"><i class="fas fa-tachometer-alt"></i> Laravel · Livewire</div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://placehold.co/600x400/103544/3bc9ff?text=POS+Analytics&font=montserrat" alt="POS System Interface" class="card-img">
+            <div class="card-content">
+                <i class="fas fa-cash-register"></i>
+                <h3>OmniPOS System</h3>
+                <p>Multi-branch inventory, barcode scanning, invoice generation, QR payments, real-time sales forecasting.</p>
+                <div><i class="fas fa-chart-line"></i> Advanced analytics</div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://placehold.co/600x400/0f2e42/7bc9ff?text=HR+Infinity+Platform&font=montserrat" alt="HR management dashboard" class="card-img">
+            <div class="card-content">
+                <i class="fas fa-users"></i>
+                <h3>HR Infinity</h3>
+                <p>Employee lifecycle, payroll automation, leave & performance reviews, dynamic reporting and exports.</p>
+                <div><i class="fas fa-shield-alt"></i> Role-based security</div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://placehold.co/600x400/10323f/3bc9ff?text=StockTrading+Platform&font=montserrat" alt="Trading platform dashboard" class="card-img">
+            <div class="card-content">
+                <i class="fas fa-chart-line"></i>
+                <h3>StockEdge Platform</h3>
+                <p>Real-time simulations, stock watchlist, algorithmic indicators, portfolio analytics, interactive charts.</p>
+                <div><i class="fab fa-js"></i> Vue + Chart.js</div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -121,9 +534,151 @@
 </section>
 
 <footer>
-    <p>© 2026 Joel Mkandawire — full-stack developer | <i class="fas fa-code"></i> building impactful systems</p>
+    <p>© 2026 Joel Mkandawire — full-stack architect | <i class="fas fa-code"></i> crafting intelligent systems</p>
 </footer>
 
-<script src="script.js"></script>
+<script type="module">
+    import * as THREE from 'three';
+    const canvas = document.getElementById('bg-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    
+    const particleGeo = new THREE.BufferGeometry();
+    const pCount = 1600;
+    const posArr = new Float32Array(pCount * 3);
+    for(let i=0;i<pCount;i++) {
+        posArr[i*3] = (Math.random() - 0.5) * 180;
+        posArr[i*3+1] = (Math.random() - 0.5) * 100;
+        posArr[i*3+2] = (Math.random() - 0.5) * 80 - 30;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    const particleMat = new THREE.PointsMaterial({ color: 0x3bc9ff, size: 0.2, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending });
+    const stars = new THREE.Points(particleGeo, particleMat);
+    scene.add(stars);
+    
+    const knotGeo = new THREE.TorusKnotGeometry(2.8, 0.7, 180, 24, 3, 4);
+    const knotMat = new THREE.MeshStandardMaterial({ color: 0x2c7da0, emissive: 0x103a4a, roughness: 0.3, metalness: 0.7 });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    scene.add(knot);
+    const ambient = new THREE.AmbientLight(0x2a3a55);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5,8,6);
+    scene.add(ambient, dirLight);
+    camera.position.z = 19;
+    camera.position.y = 2;
+    
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        knot.rotation.x += 0.006;
+        knot.rotation.y += 0.01;
+        stars.rotation.y += 0.0004;
+        stars.rotation.x += 0.0002;
+        renderer.render(scene, camera);
+    }
+    animate3D();
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+
+<script>
+    // typing effect
+    const typedSpan = document.getElementById('typing');
+    const roles = ["Full-Stack Architect", "System Designer", "Laravel Expert", "Problem Solver"];
+    let idx = 0, charIdx = 0, del = false;
+    function typeWrite() {
+        const current = roles[idx];
+        if(del) {
+            typedSpan.innerHTML = current.substring(0, charIdx-1);
+            charIdx--;
+        } else {
+            typedSpan.innerHTML = current.substring(0, charIdx+1);
+            charIdx++;
+        }
+        if(!del && charIdx === current.length) {
+            del = true;
+            setTimeout(typeWrite, 1500);
+            return;
+        }
+        if(del && charIdx === 0) {
+            del = false;
+            idx = (idx+1) % roles.length;
+            setTimeout(typeWrite, 280);
+            return;
+        }
+        setTimeout(typeWrite, del ? 50 : 100);
+    }
+    typeWrite();
+
+    // skill observer & counter
+    const skillSec = document.getElementById('skills');
+    let skillAnim = false;
+    function runSkills() {
+        if(skillAnim) return;
+        skillAnim = true;
+        document.querySelectorAll('.bar-fill').forEach(bar => {
+            const w = bar.getAttribute('data-width');
+            bar.style.width = w + '%';
+            const parentSpan = bar.closest('.skill-item')?.querySelector('.skill-header span:last-child');
+            if(parentSpan && parentSpan.id) {
+                let target = parseInt(w), current = 0;
+                const valSpan = document.getElementById(parentSpan.id);
+                const interval = setInterval(() => {
+                    if(current >= target) clearInterval(interval);
+                    else { current++; valSpan.innerText = current + '%'; }
+                }, 18);
+            }
+        });
+    }
+    const obs = new IntersectionObserver((entries) => { if(entries[0].isIntersecting) runSkills(); }, { threshold: 0.3 });
+    obs.observe(skillSec);
+
+    // toast message
+    const toastMsg = document.getElementById('toast');
+    function showToast(text) {
+        toastMsg.style.transform = 'translateX(0%)';
+        toastMsg.innerText = text || '✓ Done!';
+        setTimeout(() => { toastMsg.style.transform = 'translateX(150%)'; }, 2900);
+    }
+    // contact form
+    const contactForm = document.getElementById('contactForm');
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nameInput').value.trim();
+        showToast(name ? `Thanks ${name}, I'll reply soon!` : "Message sent! I'll reach out.");
+        contactForm.reset();
+    });
+    // download CV
+    document.getElementById('downloadCVbtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const blob = new Blob(["Joel Mkandawire - Full Stack Developer\nExpertise: Laravel, React, MySQL, System Architecture, POS, HRMS\nEmail: joelmkandawire4@gmail.com"], {type: "text/plain"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "Joel_Mkandawire_CV.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("📄 CV download started!");
+    });
+    document.getElementById('linkedinMock').addEventListener('click', (e) => { e.preventDefault(); showToast("🔗 LinkedIn: /in/joel-mkandawire (coming soon)"); });
+    // smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const target = this.getAttribute('href');
+            if(target === "#") return;
+            const el = document.querySelector(target);
+            if(el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+    // additional image dynamic enhancement: replace placeholder with actual unsplash? but it works
+    // add hover effect on hero image
+    const hero = document.getElementById('heroImage');
+    if(hero) hero.style.cursor = 'pointer';
+</script>
 </body>
 </html>
